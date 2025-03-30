@@ -44,7 +44,7 @@ const Login = async (req, res) => {
     }
 }
 const GetInfor = async (req, res) => {
-    const {username} = req.body;
+    const username = req.para.query.username;
     try {
         const response = await service.getInfor(username);
         if(response.EC== 200){
@@ -127,7 +127,7 @@ const AddNewChapter = async (req, res) => {
     }
 }
 const GetChapter = async (req, res) => {
-    const {bookId} = req.body;
+    const bookId = req.query.bookId;
     try {
         const response = await service.getChapter(bookId);
         if(response?.EC == 200) {
@@ -146,7 +146,7 @@ const GetChapter = async (req, res) => {
     }
 }
 const GetContentChapter = async (req, res) => {
-    const {bookId, No}=req.body;
+    const {bookId, No}=req.query;
     try {
         const response = await service.getContentChapter(bookId, No);
         if(response?.EC == 200) {
@@ -202,7 +202,7 @@ const GetBookInUpdate = async (req, res) => {
     }
 }
 const GetBookById = async (req, res) => {
-    const {bookId} = req.body;
+    const {bookId} = req.query;
     try {
         const response = await service.getBookById(bookId);
         if(response?.EC == 200) {
