@@ -361,7 +361,7 @@ const getBookInNew = async ()=>{
 }
 const getBookInUpdate = async ()=>{
   try {
-    const listBook = await Book.find().select("title imageUrl category quantity author").sort({updateAt: -1})
+    const listBook = await Book.find().select("title imageUrl category quantity author description").sort({updateAt: -1})
     if(listBook){
       return {
         EC: 200,
