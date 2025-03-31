@@ -44,7 +44,9 @@ const Login = async (req, res) => {
     }
 }
 const GetInfor = async (req, res) => {
-    const username = req.para.query.username;
+    const {username} = req.query;
+    console.log(username)
+    // username = "nghia123";
     try {
         const response = await service.getInfor(username);
         if(response.EC== 200){
