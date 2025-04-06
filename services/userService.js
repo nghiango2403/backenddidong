@@ -98,9 +98,9 @@ const LoginService = async (username, password) => {
         };
       }
 }
-const getInfor = async (username)=>{
+const getInfor = async (id)=>{
   try {
-        let response = await User.findOne({ username: username }).select("name imageUrl");
+        let response = await User.findById(id).select("name imageUrl");
         // console.log(response)
         if (response) {
           return {
@@ -124,10 +124,9 @@ const getInfor = async (username)=>{
         };
       }
 }
-const UpdatePassword = async (username, password, newpassword)=>{
+const UpdatePassword = async (id, password, newpassword)=>{
   try {
-    console.log("g")
-    let response = await User.findOne({ username });
+    let response = await User.findById(id);
     console.log(bcrypt.compareSync(password, response.password));
     if (!bcrypt.compareSync(password, response.password)) {
           return {
@@ -138,7 +137,6 @@ const UpdatePassword = async (username, password, newpassword)=>{
     let hashedPassword = hashPassword(newpassword);
     let responsewithupdate = await User.findOneAndUpdate({username}, {$set:{password:hashedPassword}})
     if (responsewithupdate) {
-      console.log("b")
       return{
         EC: 200,
         message: "Đổi mật khẩu thành công",
@@ -159,9 +157,7 @@ const UpdatePassword = async (username, password, newpassword)=>{
 }
 const updateInfor = async (username, name, imageUrl)=>{
   try {
-        let response = await User.findOneAndUpdate(
-          { username: username }, { $set: { name: name, imageUrl: imageUrl } }, { new: true, fields: "name imageUrl" } 
-        );
+        let response = await User.findByIdAndUpdate(id, { $set: { name: name, imageUrl: imageUrl } }, { new: true, select: "name imageUrl" })
         // console.log(response)
         if (response) {
           return {
@@ -288,7 +284,7 @@ const addChapter = async (bookId, title, content) => {
 };
 const getChapter = async (bookId)=>{
   try {
-    const chapter = await Chapter.find({bookId: bookId}).select("No title createdAt");
+    const chapter = await Chapter.find({bookId: bookId}).select("No title bookId createdAt");
     if(chapter){
       return {
         EC: 200,
@@ -312,8 +308,8 @@ const getChapter = async (bookId)=>{
 }
 const getContentChapter = async (bookId, No)=>{
   try {
-    const content = await Chapter.find({bookId: bookId, No: No}).select("content");
-    console.log("a")
+    const content = await Chapter.findOne({bookId: bookId, No:parseInt(No, 10)});
+    
     if(content){
       return {
         EC: 200,
@@ -351,10 +347,34 @@ const getBookInNew = async ()=>{
       data: "",
     }
   } catch (error) {
-    console.log("L��i khi lấy sách mới");
+    console.log("Lỗi khi lấy sách mới");
     return {
       EC: 500,
-      message: "L��i khi lấy sách mới",
+      message: "Lỗi khi lấy sách mới",
+      data: "",
+    }
+  }
+}
+const getBookInFull = async ()=>{
+  try {
+    const listBook = await Book.find({status: "Hoàn thành"}).select("title imageUrl category quantity author").sort({createdAt: -1})
+    if(listBook){
+      return {
+        EC: 200,
+        message: "Lấy thành công",
+        data: listBook,
+      }
+    }
+    return {
+      EC: 404,
+      message: "Không tìm thấy sách nào",
+      data: "",
+    }
+  } catch (error) {
+    console.log("Lỗi khi lấy sách mới");
+    return {
+      EC: 500,
+      message: "Lỗi khi lấy sách mới",
       data: "",
     }
   }
@@ -375,10 +395,10 @@ const getBookInUpdate = async ()=>{
       data: "",
     }
   } catch (error) {
-    console.log("L��i khi lấy sách mới");
+    console.log("Lỗi khi lấy sách mới");
     return {
       EC: 500,
-      message: "L��i khi lấy sách mới",
+      message: "Lỗi khi lấy sách mới",
       data: "",
     }
   }
@@ -402,8 +422,59 @@ const getBookById = async (bookId)=>{
     console.log("Lỗi khi lấy thông tin sách")
     return {
       EC: 500,
-      message: "L��i khi lấy thông tin sách",
+      message: "Lỗi khi lấy thông tin sách",
       data: "",
+    }
+  }
+}
+const AddChat = async (userId, bookId, content)=>{
+  try {
+    const chat = await Chat.create({
+      userChat:userId,
+      content,
+      bookId:bookId,
+    });
+    if(chat){
+      return {
+        EC: 200,
+        message: "Thành công",
+        data: chat,
+      }
+    }
+    return {
+      EC: 500,
+      message: "Lỗi khi tạo tin nhắn",
+      data: "",
+    }
+  } catch (error) {
+    console.log("Lỗi khi tạo tin nhắn", error);
+    return {
+      EC: 500,
+      message: "Lỗi khi tạo tin nhắn",
+      data: "",
+    }
+  }
+}
+const GetChat = async (bookId)=>{
+  try {
+    const chat = await Chat.find({bookId}).populate('userChat', "name imageUrl").sort({updatedAt: -1});
+    if(chat){
+      return {
+        EC: 200,
+        message: "Thành công",
+        data: chat,
+      }
+    }
+    console.log(chat);
+    return {
+      EC: 500,
+      message: "Lỗi khi tạo tin nhắn",
+      data: "",
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EC: 500,
     }
   }
 }
@@ -421,4 +492,7 @@ module.exports={
     getBookInNew,
     getBookById,
     getBookInUpdate,
+    getBookInFull,
+    AddChat,
+    GetChat,
 }

@@ -23,9 +23,8 @@ const Login = async (req, res) => {
         if(response.EC != 200){
             return res.status(response.EC).json(response)
         }
-
         const payload = {
-            username:response.username
+            id:response.data._id.toString()
         }
         let token = await service.generateTokens(payload);
         return res.status(response.EC).json({
@@ -44,11 +43,10 @@ const Login = async (req, res) => {
     }
 }
 const GetInfor = async (req, res) => {
-    const {username} = req.query;
-    console.log(username)
-    // username = "nghia123";
+    const {token} = req.query;
+    id=jwt.decode(token).id;
     try {
-        const response = await service.getInfor(username);
+        const response = await service.getInfor(id);
         if(response.EC== 200){
             return res.status(response.EC).json(response)
         }
@@ -65,12 +63,14 @@ const GetInfor = async (req, res) => {
     }
 }
 const updatePassword = async (req, res) => {
-    const {username, password, newpassword} = req.body;
+    const {token, password, newpassword} = req.body;
+    id=jwt.decode(token).id;
     try {
-        const response = await service.UpdatePassword(username, password, newpassword);
+        const response = await service.UpdatePassword(id, password, newpassword);
         if(response?.EC == 200){
             return res.status(response.EC).json(response)
         }
+        console.log("Lỗi")
         return res.status(404).json({
             EC: 404,
             message: "Không tìm thấy thông tin người dùng hoặc mật khẩu không đúng"
@@ -84,9 +84,10 @@ const updatePassword = async (req, res) => {
     }
 }
 const updateInfo = async (req, res) => {
-    const {username, name, imageUrl} = req.body;
+    const {token, name, imageUrl} = req.body;
+    id=jwt.decode(token).id;
     try {
-        const response = await service.updateInfor(username, name, imageUrl);
+        const response = await service.updateInfor(id, name, imageUrl);
         if(response.EC == 200){
             return res.status(response.EC).json(response)
         }
@@ -160,7 +161,7 @@ const GetContentChapter = async (req, res) => {
             message:"Không tìm thấy truyện này hoặc chap này"
         })
     } catch (error) {
-        console.log("Lỗi server")
+        console.log("Lỗi server "+error.message)
         return res.status(500).json({
             EC: 500,
             message:"L��i server"
@@ -170,6 +171,24 @@ const GetContentChapter = async (req, res) => {
 const GetBookInNew = async (req, res) => {
     try {
         const response = await service.getBookInNew();
+        if(response?.EC == 200){
+            return res.status(response.EC).json(response)
+        }
+        return res.status(404).json({
+            EC: 404,
+            message:"Không tìm thấy truyện mới nào"
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            EC: 500,
+            message:"L��i server"
+        })
+    }
+}
+const GetBookInFull = async (req, res) => {
+    try {
+        const response = await service.getBookInFull();
         if(response?.EC == 200){
             return res.status(response.EC).json(response)
         }
@@ -222,6 +241,45 @@ const GetBookById = async (req, res) => {
         })
     }
 }
+const AddChat = async (req, res)=>{
+    const {bookId, token, content} = req.body;
+    userId=jwt.decode(token).id;
+    try {
+        const response = await service.AddChat(userId, bookId, content);
+        if(response?.EC == 200) {
+            return res.status(response.EC).json(response)
+        }
+        return res.status(404).json({
+            EC: 404,
+            message:"Không tìm thấy truyện này"
+        })
+    } catch (error) {
+        console.log("L��i server")
+        return res.status(500).json({
+            EC: 500,
+            message:"L��i server"
+        })
+    }
+}
+const GetChat = async (req, res) => {
+    const {bookId}=req.query;
+    try {
+        const response = await service.GetChat(bookId);
+        if(response?.EC == 200) {
+            return res.status(response.EC).json(response)
+        }
+        return res.status(404).json({
+            EC: 404,
+            message:"Không tìm thấy truyện này"
+        })
+    } catch (error) {
+        console.log("L��i server")
+        return res.status(500).json({
+            EC: 500,
+            message:"L��i server"
+        })
+    }
+}
 module.exports ={
     Register,
     Login,
@@ -234,5 +292,8 @@ module.exports ={
     GetContentChapter,
     GetBookInNew,
     GetBookById,
-    GetBookInUpdate
+    GetBookInUpdate,
+    GetBookInFull,
+    AddChat,
+    GetChat,
 }

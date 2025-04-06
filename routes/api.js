@@ -17,8 +17,11 @@ const initApiRoutes = (app) => {
     router.get("/getchapter", controller.GetChapter)
     router.get("/getcontentchapter", controller.GetContentChapter)
     router.get("/getnewbook", controller.GetBookInNew)
+    router.get("/getfullbook", controller.GetBookInFull)
     router.get("/getupdatebook", controller.GetBookInUpdate)
     router.get("/getbookbyid", controller.GetBookById)
+    router.post("/addchat", controller.AddChat)
+    router.get("/getchat", controller.GetChat)
     return app.use("/v1/api/", router);
   };
   

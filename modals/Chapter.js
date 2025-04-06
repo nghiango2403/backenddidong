@@ -30,3 +30,4 @@ const chapterSchema = mongoose.Schema(
 const Chapter = mongoose.model("Chapter", chapterSchema);
 
 module.exports = Chapter;
+
