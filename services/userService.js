@@ -13,6 +13,30 @@ const generateTokens = async (payload) => {
     return { accessToken };
   
 };
+const addView = async (bookId)=>{
+  try {
+    const book = await Book.findByIdAndUpdate(bookId, { $inc: { views: 1 } }, { new: true });
+    if(book){
+      return {
+        EC: 200,
+        message: "Thành công",
+        data: book,
+      }
+    }
+    return {
+      EC: 404,
+      message: "Sách không tồn tại",
+      data: "",
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      EC: 500,
+      message:"L��i server",
+      data: "",
+    }
+  }
+}
 const isvalidUsername = async (username) => {
   try {
     const user = await User.findOne({ username });
@@ -133,7 +157,6 @@ const UpdatePassword = async (id, password, newpassword)=>{
             EC: 500,
           };
         }
-    console.log("a")
     let hashedPassword = hashPassword(newpassword);
     let responsewithupdate = await User.findOneAndUpdate({username}, {$set:{password:hashedPassword}})
     if (responsewithupdate) {
@@ -478,6 +501,30 @@ const GetChat = async (bookId)=>{
     }
   }
 }
+const SearchBook = async (content)=>{
+  try {
+    const listBook = await Book.find({title: {$regex: content, $options: 'i'}}).select("title imageUrl category quantity author").sort({createdAt: -1})
+    if(listBook){
+      return {
+        EC: 200,
+        message: "Thành công",
+        data: listBook,
+      }
+    }
+    return {
+      EC: 404,
+      message: "Không tìm thấy sách nào",
+      data: "",
+    }
+  } catch (error) {
+    console.log("L��i khi tìm kiếm sách");
+    return {
+      EC: 500,
+      message: "L��i khi tìm kiếm sách",
+      data: "",
+    }
+  }
+}
 module.exports={
     registerService,
     LoginService,
@@ -495,4 +542,6 @@ module.exports={
     getBookInFull,
     AddChat,
     GetChat,
+    SearchBook,
+    addView,
 }

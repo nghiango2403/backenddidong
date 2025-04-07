@@ -152,14 +152,20 @@ const GetContentChapter = async (req, res) => {
     const {bookId, No}=req.query;
     try {
         const response = await service.getContentChapter(bookId, No);
-        if(response?.EC == 200) {
-            return res.status(response.EC).json(response)
+        if(response?.EC != 200){
+            return res.status(404).json({
+                EC: 404,
+                message:"Không tìm thấy truyện này hoặc chap này"
+            })
         }
-        console.log(response)
-        return res.status(404).json({
-            EC: 404,
-            message:"Không tìm thấy truyện này hoặc chap này"
-        })
+        const addview = await service.addView(bookId);
+        if(addview?.EC != 200){
+            return res.status(404).json({
+                EC: 404,
+                message:"Không tìm thấy truyện này hoặc chap này"
+            })
+        }
+        return res.status(response.EC).json(response)     
     } catch (error) {
         console.log("Lỗi server "+error.message)
         return res.status(500).json({
@@ -280,6 +286,25 @@ const GetChat = async (req, res) => {
         })
     }
 }
+const SearchBook = async (req, res) => {
+    const {query}=req.query;
+    try{
+        const response = await service.SearchBook(query);
+        if(response?.EC == 200) {
+            return res.status(response.EC).json(response)
+        }
+        return res.status(404).json({
+            EC: 404,
+            message:"Không tìm thấy truyện nào"
+        })
+    }catch(e) {
+        console.log("Lỗi server")
+        return res.status(500).json({
+            EC: 500,
+            message:"Lỗi server"
+        })
+    }
+}
 module.exports ={
     Register,
     Login,
@@ -296,4 +321,5 @@ module.exports ={
     GetBookInFull,
     AddChat,
     GetChat,
+    SearchBook,
 }
