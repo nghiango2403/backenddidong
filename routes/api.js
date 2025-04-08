@@ -22,6 +22,7 @@ const initApiRoutes = (app) => {
     router.get("/getbookbyid", controller.GetBookById)
     router.post("/addchat", controller.AddChat)
     router.get("/getchat", controller.GetChat)
+    router.delete("/deletechat", controller.deleteChatById)
     router.get("/search", controller.SearchBook)
     return app.use("/v1/api/", router);
   };

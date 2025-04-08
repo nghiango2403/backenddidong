@@ -17,6 +17,7 @@ const Register = async (req, res) =>{
     }
 } 
 const Login = async (req, res) => {
+    console.log("a");
     const {username, password} = req.body
     try {
         const response = await service.LoginService(username, password);
@@ -31,7 +32,8 @@ const Login = async (req, res) => {
             EC: response.EC,
             message: response.message,
             data:{
-                token:token.accessToken
+                token:token.accessToken,
+                id:response.data._id.toString()
             }
         })
     } catch (error) {
@@ -305,6 +307,41 @@ const SearchBook = async (req, res) => {
         })
     }
 }
+const deleteChatById = async (req, res) => {
+    const {chatId, Token} = req.query;
+    userId=jwt.decode(Token).id;
+    try{
+        const findReqsponse = await service.findChatById(chatId, userId);
+        if(findReqsponse?.EC != 200) {
+            return res.status(404).json({
+                EC: 404,
+                message:"Không tìm thấy truyện này"
+            })
+        }
+        if(findReqsponse.data.userChat==userId){
+            const response = await service.deleteChatById(chatId);
+            if(response?.EC == 200) {
+                return res.status(response.EC).json(response)
+            }
+            return res.status(403).json({
+                EC: 403,
+                message:"Không xoá được"
+            })
+        }
+        return res.status(500).json({
+            EC: 500,
+            message:"Không phải người bình luận"
+        })
+        
+        
+    }catch (e){
+        console.log("Lỗi server")
+        return res.status(500).json({
+            EC: 500,
+            message:"Lỗi server"
+        })
+    }
+}
 module.exports ={
     Register,
     Login,
@@ -322,4 +359,6 @@ module.exports ={
     AddChat,
     GetChat,
     SearchBook,
+    deleteChatById,
+ 
 }

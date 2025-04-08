@@ -525,6 +525,54 @@ const SearchBook = async (content)=>{
     }
   }
 }
+const findChatById = async (chatId)=>{
+  try {
+    const chat = await Chat.findById(chatId);
+    if(chat){
+      return {
+        EC: 200,
+        message: "Thành công",
+        data: chat,
+      }
+    }
+    return {
+      EC: 404,
+      message: "Tin nhắn không tồn tại",
+      data: "",
+    }
+  } catch (error) {
+    console.log("Lỗi");
+    return {
+      EC: 500,
+      message: "Lỗi",
+      data: "",
+    }
+  }
+}
+const deleteChatById = async (chatId)=>{
+  try {
+    const chat = await Chat.findByIdAndDelete(chatId);
+    if(chat){
+      return {
+        EC: 200,
+        message: "Thành công",
+        data: chat,
+      }
+    }
+    return {
+      EC: 404,
+      message: "Xoá không thành công",
+      data: "",
+    }
+  } catch (error) {
+    console.log("Lỗi");
+    return {
+      EC: 500,
+      message: "Lỗi",
+      data: "",
+    }
+  }
+}
 module.exports={
     registerService,
     LoginService,
@@ -544,4 +592,6 @@ module.exports={
     GetChat,
     SearchBook,
     addView,
+    findChatById,
+    deleteChatById,
 }
